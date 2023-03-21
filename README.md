@@ -42,43 +42,24 @@ The project contains a basic Spring application that has been configured with Sp
 <div id="code-examples"></div>
 
 ## 💻 Code Examples
-1.Example of Spring Security Configuration :
+1.Example of Spring Security rules :
 ```java
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      .authorizeRequests()
+        .antMatchers("/login**", "/css/**").permitAll()
+        .antMatchers("/secure/**").hasRole("USER")
+        .and()
+      .formLogin()
+        .loginPage("/login")
+        .defaultSuccessUrl("/secure/home")
+        .permitAll()
+        .and()
+      .logout()
+        .permitAll();
+  }
 
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-            .authorizeRequests()
-                .antMatchers("/login**", "/css/**").permitAll()
-                .antMatchers("/secure/**").hasRole("USER")
-                .and()
-            .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/secure/home")
-                .permitAll()
-                .and()
-            .logout()
-                .permitAll();
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoder());
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-}
 ```
 2.Example of User Storage implementation :
 ```java
